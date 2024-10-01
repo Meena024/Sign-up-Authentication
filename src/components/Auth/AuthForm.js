@@ -1,12 +1,16 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 
 import classes from "./AuthForm.module.css";
+import AuthContext from "../../store/Auth-context";
 
 const AuthForm = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
+  const authCtx = useContext(AuthContext);
+
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -17,6 +21,7 @@ const AuthForm = () => {
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
 
+    setIsLoading(true);
     let url;
 
     if (isLogin) {
@@ -38,22 +43,27 @@ const AuthForm = () => {
       headers: {
         "Content-Type": "application/json",
       },
-    }).then((res) => {
-      if (res.ok) {
-        return res.json().then((data) => {
-          console.log("Authentication successful!", data);
-        });
-      } else {
-        return res.json().then((data) => {
-          let errorMessage = "Authentication failed!";
-          if (data && data.error && data.error.message) {
-            errorMessage = data.error.message;
-          }
-          alert(errorMessage);
-          console.log(data);
-        });
-      }
-    });
+    })
+      .then((res) => {
+        setIsLoading(false);
+        if (res.ok) {
+          return res.json().then((data) => {
+            console.log("Authentication successful!", data);
+            authCtx.login(data.idToken);
+          });
+        } else {
+          return res.json().then((data) => {
+            let errorMessage = "Authentication failed!";
+            if (data && data.error && data.error.message) {
+              errorMessage = data.error.message;
+            }
+            throw new Error(errorMessage);
+          });
+        }
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
   };
 
   return (
@@ -74,7 +84,12 @@ const AuthForm = () => {
           />
         </div>
         <div className={classes.actions}>
-          <button type="submit">{isLogin ? "Login" : "Create Account"}</button>
+          {!isLoading && (
+            <button type="submit">
+              {isLogin ? "Login" : "Create Account"}
+            </button>
+          )}
+          {isLoading && <p>Sending Request...</p>}
           <button
             type="button"
             className={classes.toggle}
