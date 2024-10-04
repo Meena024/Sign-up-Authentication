@@ -1,9 +1,11 @@
 import { useState, useRef, useContext } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 import classes from "./AuthForm.module.css";
 import AuthContext from "../../store/Auth-context";
 
 const AuthForm = () => {
+  const history = useHistory();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
@@ -47,10 +49,7 @@ const AuthForm = () => {
       .then((res) => {
         setIsLoading(false);
         if (res.ok) {
-          return res.json().then((data) => {
-            console.log("Authentication successful!", data);
-            authCtx.login(data.idToken);
-          });
+          return res.json();
         } else {
           return res.json().then((data) => {
             let errorMessage = "Authentication failed!";
@@ -60,6 +59,11 @@ const AuthForm = () => {
             throw new Error(errorMessage);
           });
         }
+      })
+      .then((data) => {
+        console.log("Authentication successful!", data);
+        authCtx.login(data.idToken);
+        history.replace("/");
       })
       .catch((err) => {
         alert(err.message);
