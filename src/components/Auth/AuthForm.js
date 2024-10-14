@@ -76,7 +76,13 @@ const AuthForm = () => {
       <form onSubmit={submitHandler}>
         <div className={classes.control}>
           <label htmlFor="email">Your Email</label>
-          <input type="email" id="email" required ref={emailInputRef} />
+          <input
+            type="email"
+            id="email"
+            required
+            ref={emailInputRef}
+            autoComplete="email"
+          />
         </div>
         <div className={classes.control}>
           <label htmlFor="password">Your Password</label>
@@ -85,6 +91,7 @@ const AuthForm = () => {
             id="password"
             required
             ref={passwordInputRef}
+            autoComplete="off"
           />
         </div>
         <div className={classes.actions}>

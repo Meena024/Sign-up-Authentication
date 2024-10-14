@@ -41,6 +41,7 @@ const ProfileForm = () => {
           id="new-password"
           minLength="7"
           ref={newPasswordInputRef}
+          autoComplete="off"
         />
       </div>
       <div className={classes.action}>
